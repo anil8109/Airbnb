@@ -1,0 +1,54 @@
+Qtns
+
+What is the npm ci?
+npm clean install: 
+    -> npm install // just like this we do 
+    -> npm ci // For clean installation of all packages.
+
+If any problem comes while installation of any package (we have during npx prisma init).
+So just delete package.json and do (npm ci).
+
+----------------------
+Setting up Prisma
+    npm i prisma
+    npx prisma init.
+
+Prisma creates .env file by self and .gitignore also (if dont find in the current folder).
+So we have to delete prisma created or our created file any of them create .env and .gitignore file. Which ever we want.
+
+Run your prisma commands inside src folder.
+
+Prisma Client:
+    npm install @prisma/client
+
+    remove this line from generator client because   "output   = "../src/generated/prisma"" output folder will be in node modules folder so dont need.
+
+    Install Prisma client extention in vscode to see .prisma file systex formatting n all.
+
+Prisma Migration:
+https://www.prisma.io/docs/orm/prisma-migrate/getting-started
+After writing model inside schema.prisma need to use below command to inialise your tables to database .
+    prisma migrate dev --name init 
+        ->if fails
+    npx prisma migrate dev --name init 
+        -> Because prisma gloablly is not installed but installed in project so we use npx to use any project installed pkg in cmd.
+
+    Now check databse your table is created
+        Want to add any field
+        npx prisma migrate dev --name init added_total_guests_to_bookings
+
+    If want to delete any column / down Migration
+        https://www.prisma.io/docs/orm/prisma-migrate/workflows/generating-down-migrations
+
+Generate your models inside nodemodules and Sync your tables to prisma clint to use table in code as model:
+    npx prisma generate
+
+    ex: 
+        client.ts
+            import { PrismaClient } from "@prisma/client";
+            export default new PrismaClient();
+        repository.ts
+            import PrismaClient from "../prisma/client";
+            PrismaClient.booking.create
+
+Whenever you want to add new table just write your model in schema.prisma and run migration command.
