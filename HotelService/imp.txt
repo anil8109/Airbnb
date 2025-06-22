@@ -1,0 +1,64 @@
+
+npm i mysql2 sequelize
+npm i -D sequelize-cli
+cd src
+npx sequelize-cli init // creates models, seeders, migrations, and config folders and some files in src folder.
+    we can aslo customize this command.
+
+    Create a file .sequelizerc and configure that. then run this command again.
+
+Install mysql server (password: As810966@gmail) https://www.youtube.com/watch?v=nj3nBCwZaqI 
+and workbench https://youtu.be/vQPBNCvboSo?si=J5Etvq7pjUfXXbIw
+
+if error while mysql server check 
+    anilkumarsen@Anils-MacBook-Pro ~ % mysql -u root -p             
+    zsh: command not found: mysql
+
+    try with this command 
+        /usr/local/mysql/bin/mysql -u root -p
+        if runs just set your new path 
+
+        open > touch ~/.zshrc 
+        Add this line below
+        export PATH="/usr/local/mysql/bin:$PATH"
+
+Create your database and add credentials in config file.
+
+Now create migration
+    npx sequelize-cli migration:generate --name create-hotel-table
+
+    up: make new changes in the database
+    down: revert the changes (rollback)
+
+    We can write raw queries and ts like code as well.
+
+
+Now run the created migration
+    npx sequelize-cli db:migrate
+
+Migration to add column
+    npx sequelize-cli migration:generate --name add-rating-to-hotel-table
+
+We can also revert one specific migration and all the migration to come to initial state.
+    npx sequelize-cli db:migrate:undo:all --to XXXXXXXXXXXXXX-create-posts.js
+    npx sequelize-cli db:migrate:undo:all
+
+To undo migration
+    npx sequelize-cli db:migrate:undo
+
+workbench
+    create database airbnb_dev;
+
+    use airbnb_dev;
+    show tables;
+
+    desc hotels;
+
+    select * from SequelizeMeta; // Shows versions of tables
+
+Sequelize migrations does not directly supports ts configurations and migrations files so we create sequelize.config.js file under config folder.
+sequelize paranoid: 
+
+Hooks: Function which are called before/after any call in database.
+https://sequelize.org/docs/v6/other-topics/hooks/
+
