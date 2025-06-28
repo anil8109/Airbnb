@@ -52,3 +52,54 @@ Generate your models inside nodemodules and Sync your tables to prisma clint to 
             PrismaClient.booking.create
 
 Whenever you want to add new table just write your model in schema.prisma and run migration command.
+
+Applting Pesssimistic lock when confirmBookingService calls to getIdempotencyKey function.
+    Why we do this 
+
+    We are talking about same user request comming twice.
+
+    Reason One
+        While booking confirmation a user can hit by mistake 2 or 3 times at that time if confirmBooking method calls for one requests from three of them 
+        and finalizeIdempotencyKey function any how gets error then finalize will not happen in idempotencykey table. 
+        And other requests will come then it will call again confirmBooking. So it is not good but still idempotencykey row is not marked finalised. 
+
+    Reason two:
+        If user sends 2 requests r1 , r2 by mistake for same booking and context switching happens so r1 already reads data from getIdempotencyKey which is not finalized but stops process 
+        because of context switching and r2 reads data and r2 confirms booking and finalized the key as well.
+        But after r2 completes r1 still has old data which is not finalized so it will go to do confirm booking while confirm booking and finalized data is already 
+        done by r2.
+
+    How it solves problem:
+    Solution 1: Pesssimistic lock while calling getIdempotencyKey and apply prisma transaction for all operation in confirmBookingService
+        If same user sends 2 or 3 requests: r1, r2, r3
+        It locks the row of idempotencykey while reading r1 from function getIdempotencyKey it will apply lock in the row and till that time other requests r2 and r3 will wait.
+        As soon as r2 turns comes for reading r1 will complete the confirmBookin and finalizeIdempotencyKey will complete and r2 will get updated data.
+
+    Solution 2: Pesssimistic lock while calling getIdempotencyKey and apply prisma transaction and and apply transaction for all operation in confirmBookingService
+        Same like solution 1. 
+
+    Whenever we apply the pessimistic lock hen it will release?
+        As sson as transaction ends it releases.
+
+Transaction in mysql and in nodejs orm if different:
+    ACID:
+        Not all Non relational Databases cupport ACID but all relational databases support ACID.
+
+Prisma and Redis, Redlock, ioredis
+    npm i ioredis
+    npm i redlock
+
+    If a hotel is already locked by an user or if a hotel is being booked by a user you can not book that.
+
+Postman collection run option:
+    Through postman collection we can shcedule auto and manual run for our specific requests.
+    We can also do performance testing.
+
+Till now what specific covered:
+    Parallel booking/ concurrent booking: Through Redis,
+    Idempotent API,
+    Multiple request by same user at a same time for a booking handled: Idempotency key.
+    Transactions in Prisma,
+    Multiple user calling read for a row but got same data but while context switch happened one request r1 stops but r2 runs and r2 modified data at that time.
+    So r2 has still old data:
+        Pessimistic lock.
