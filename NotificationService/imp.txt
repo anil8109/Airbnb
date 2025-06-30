@@ -1,0 +1,72 @@
+npm i bullmq handlebars ioredis nodemailer
+Singleton object: created once and use that.
+
+Server 1                                    Server 2
+Micro service 1                             Micro service 2
+
+                    Server 3
+                    Redis 
+
+
+Retry fail jobs
+import { Queue } from 'bullmq';
+
+const myQueue = new Queue('foo');
+
+await queue.add(
+  'test-retry',
+  { foo: 'bar' },
+  {
+    attempts: 3, // it will attempts three times if fails each attempts after 1000 ms / 1 sec.
+    backoff: {
+      type: 'fixed',
+      delay: 1000,
+    },
+  },
+);
+
+@bull-board
+
+redis inside desktop application. download from https://redis.io/downloads/#Redis_Insight
+
+Process how we are implementing redis queue to send payload to queves using bullmq:
+
+    1. Create connection of redis connectToRedis() in redis.config.ts
+    2. Now attach your connection with bullmq mailer.queue.ts
+    3. Add your payload to bullmq email.producer.ts
+    4. As soon as it is added check if it is processing or not email.processor.ts
+
+    If you connect this redis same thing in booking service and add payload from there with same host url of redis we will get that data here as well in notification
+    service.
+
+To attach gmail for smtp use 
+  https://support.google.com/mail/answer/185833?hl=en
+  click on Create and manage your app passwords
+
+  Generate App name and copy n past your less secure password
+    if error 
+      that setting you are looking for is not available.
+      Enable two setp erification in gmail then again redo complete process.
+
+      send email code and then delete app password from gmail for security.
+  
+How we configure node mailer:
+  1. Generate your app password 
+    https://support.google.com/mail/answer/185833?hl=en
+    click on Create and manage your app passwords
+    Copy app password and your mail user and app password in env 
+  2. Create transport using env mail user in env mailer.config.ts
+  3. Call 
+    addEmailToQueue({
+        to: 'senkumaranil26@gmail.com',
+        subject: 'Testemail',
+        templateId: 'welcome',
+        params: {
+            name: 'Anil Kumar Sen',
+            appName: "Booking App"
+        }
+    });
+    in server.js to attach email to obullmq
+  4. Once added our mail payload to queue from setUpMailerWorker, email.processor.ts email processed from queue and send using 
+    mailer.service.ts and sendEmail.
+  5. We can send to multiple users at once 

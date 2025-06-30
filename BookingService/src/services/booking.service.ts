@@ -3,7 +3,7 @@ import { confirmBooking, createBooking, createIdempotencyKey, finalizeIdempotenc
 import { BadRequestError, InternalServerError, NotFoundError } from "../utils/errors/app.error";
 import { generateIdempotencyKey } from "../utils/generateIdempotencyKey";
 import prismaClient from "../prisma/client";
-import { redLock } from "../config/redix.config";
+import { redLock } from "../config/redis.config";
 import { serverConfig } from "../config";
 
 export async function createBookingService(CreateBookingDTO: CreateBookingDTO) {
