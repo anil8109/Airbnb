@@ -1,0 +1,105 @@
+Comand to create mod
+    -> go mod init AuthInGo
+We are to use env for environment variable so we will use library 
+    -> https://github.com/joho/godotenv
+
+    Use it's one command
+        -> go get github.com/joho/godotenv
+
+Chi Router:
+    use its first command 
+        https://github.com/go-chi/chi
+        -> go get -u github.com/go-chi/chi/v5
+
+create file main.go and run go run main.go
+env file config and using it.
+chi router.
+Dependency Injection: All our repository, service, controller, router layers are following dependency injection followed.
+
+Connecting to Databse using SQL driver for go: 
+    go get -u github.com/go-sql-driver/mysql
+    import "github.com/go-sql-driver/mysql" 
+DSN (Data Source Name) string root:
+    As810966@gmail@tcp(127.0.0.1:3306)/auth_dev
+
+Go lang query:
+    queryrow for single row fetch, query for multiple rows fetch
+
+Goose: Migration
+    go install github.com/pressly/goose/v3/cmd/goose@latest
+
+    goose create create_user_table sql // without directory name
+    goose -dir "config/db/migrations" create create_user_table sql // With directory name
+
+
+    After modifying query in migration file:
+        goose -dir "config/db/migrations" mysql "root:As810966@gmail@tcp(127.0.0.1:3306)/auth_dev" up
+
+
+    Table should be created 
+GNU Make: For writing script and run it by customizing our cmd commands.
+    brew install make
+    Create Makefile
+        gmake migrate-create name="create_session_table" 
+        gmake migrate-up
+
+    Note: If you delete migration file after generating file and after deleting if you run up command then you will get:
+        goose: no migrations to run.
+
+// Copy the code of Makefile from sanket singh
+
+bcrypt: hashing password
+    go get golang.org/x/crypto/bcrypt
+
+JSON encoder n decoder:
+Validator: 
+    go get github.com/go-playground/validator/v10
+    WithRequiredStructEnabled
+init() function in go: It calls only once, regardless how many time the package is imported but it will get called only once.
+    Ex: we can set db functions, etc 
+
+Pass by copy n Pass by reference: 
+context in go lang: while reading data from request we can not read once already read so the request object gets empty so we use context.
+    By using this we pass set of object across the lifecycle.
+Middleware:
+    go get github.com/go-chi/chi/middleware
+
+Work:
+1. connect all apis to with services using json marshalling
+2. write middleware to validate every request
+3. set up good error handeling
+
+Adding Auth and Rate limiting in API Gateway:
+Context:
+Rate limiting:
+    go get golang.org/x/time/rate
+
+Work:
+    Is this rate limit ip specific if not how can we implement.
+
+JWT base rate limiting: // TODO
+Proxy:
+    Farword Proxy: Makes request in behalf of client
+    Reserve Proxy: Return response on behalf of a server.
+
+We should have indivisual load balancers attach to our each micro services.
+
+RBAC: Role base access controll
+	Hierarchial RBAC:
+gmake migrate-create name="create_role_table"
+gmake migrate-create name="create_permission_table"
+gmake migrate-create name="create_role_permissions_table"
+gmake migrate-create name="create_user_roles_table"
+
+If getting problem while migration:
+    goose run: error: found 1 missing migrations
+
+Reason: You took clone from git and migrating that old file even table is already there.
+
+Solutions:
+    INSERT INTO goose_db_version (version_id, is_applied, tstamp)
+    VALUES (20250713105734, TRUE, NOW());
+
+    Or use your file because that file was already migrated.
+
+Uber fx:
